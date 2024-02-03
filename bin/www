@@ -6,7 +6,7 @@
 
 const app = require('../app');
 const debug = require('debug')('test:server');
-const fs = require('node;fs');
+const fs = require('node:fs');
 const http = require('node:http');
 const https = require('node:https');
 const serverSocket = require('../sockets/server-socket'); // server side socket
@@ -32,13 +32,30 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+let server = {};
+let protocol = '';
+
+if (process.env.MODE === 'prd') {
+  // HTTPS
+  const serverOptions = {
+    key: fs.readFileSync('./.ssl/server,key'),
+    cert: fs.readFileSync('./.ssl/server,crt')
+  };
+  server = https.createServer(serverOptions, app);
+  protocol = 'https';
+} else { // dev
+  // HTTP
+  server = http.createServer(app);
+  protocol = 'http';
+}
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
+server.listen(port, () => {
+  console.log(`Server is running at ${protocol}://${process,env.HOSTNAME}:${port}/`);
+});
 server.on('error', onError);
 server.on('listening', onListening);
 
