@@ -4,15 +4,28 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('test:server');
-var http = require('http');
+const app = require('../app');
+const debug = require('debug')('test:server');
+const fs = require('node;fs');
+const http = require('node:http');
+const https = require('node:https');
+const serverSocket = require('../sockets/server-socket'); // server side socket
+
+const session = app.session; // session for Socket.IO
+
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+let port = '';
+
+if (process.env.MODE === 'prd') {
+  port = normalizePort(process.env.PORT || '3000');
+} else {
+  port = normalizePort('3001'); // dev
+}
+
 app.set('port', port);
 
 /**
